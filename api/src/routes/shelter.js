@@ -16,11 +16,9 @@ router.post("/shelter", (req, res) => {
 router.get("/shelter", (req, res) => {
   shelterSchema
     .find()
-    .populate(
-      { path: "contact", model: "Contact" },
-      { path: "album", model: "Album" },
-      { path: "service", model: "Service" }
-    )
+    .populate({ path: "contact", model: "Contact" })
+    // .populate({ path: "album", model: "Album" })
+    .populate({ path: "service", model: "Service" })
     .then((data) => res.json(data))
     .catch((error) => res.json({ message: error }));
 });
