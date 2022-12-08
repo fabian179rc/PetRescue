@@ -1,4 +1,5 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
 
 const userSchema = mongoose.Schema({
   name: {
@@ -13,6 +14,11 @@ const userSchema = mongoose.Schema({
     type: String,
     required: true,
   },
+  contact: {
+    type: Schema.Types.ObjectId,
+    ref: 'Contact',
+  },
 });
 
-module.exports = mongoose.model("User", userSchema);
+const model = mongoose.model("User", userSchema);
+module.exports = model;

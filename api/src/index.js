@@ -6,6 +6,7 @@ const MONGODB_URI = process.env.MONGODB_URI;
 const mongoose = require("mongoose");
 
 const userRoutes = require("./routes/user");
+const contactsRoutes = require("./routes/contact");
 
 app.listen(port, () => console.log("server listening on port", port));
 
@@ -23,3 +24,4 @@ app.get("/", (req, res) => {
 //middleware
 app.use(express.json());
 app.use("/", userRoutes);
+app.use("/", contactsRoutes);

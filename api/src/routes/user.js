@@ -14,7 +14,7 @@ router.post("/users", (req, res) => {
 //get all user
 router.get("/users", (req, res) => {
   userSchema
-    .find()
+    .find().populate({path:"contact", model: "Contact"})
     .then((data) => res.json(data))
     .catch((error) => res.json({ message: error }));
 });
