@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 const toId = mongoose.Types.ObjectId;
 
 //create service
-router.post("/service", async (req, res) => {
+router.post("/", async (req, res) => {
   const infoShelter = await Shelter.find({
     username: req.body.shelterUsername,
   });

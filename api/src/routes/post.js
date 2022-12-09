@@ -5,8 +5,8 @@ const Post = require("../models/post");
 const mongoose = require("mongoose");
 const toId = mongoose.Types.ObjectId;
 
-//create service
-router.post("/post", async (req, res) => {
+//create post
+router.post("/", async (req, res) => {
   const infoAlbum = await Album.find({
     name: req.body.albumName,
   });
@@ -16,10 +16,7 @@ router.post("/post", async (req, res) => {
     const newPost = await Post.create(req.body);
     newPost.save();
 
-    Album.updateOne(
-      { _id: albumId },
-      { $set: { posts: toId(newPost) } }
-    )
+    Album.updateOne({ _id: albumId }, { $set: { posts: toId(newPost) } })
       .then((data) => res.json(data))
       .catch((error) => res.json({ message: error }));
   } catch (err) {

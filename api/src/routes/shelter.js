@@ -3,7 +3,7 @@ const router = express.Router();
 const shelterSchema = require("../models/shelter");
 
 //create shelter
-router.post("/shelter", (req, res) => {
+router.post("/", (req, res) => {
   const shelter = shelterSchema(req.body);
   try {
     shelter.save().then((data) => res.json(data));
@@ -13,7 +13,7 @@ router.post("/shelter", (req, res) => {
 });
 
 //get all shelters
-router.get("/shelter", (req, res) => {
+router.get("/", (req, res) => {
   shelterSchema
     .find()
     .populate({ path: "contact", model: "Contact" })
@@ -24,7 +24,7 @@ router.get("/shelter", (req, res) => {
 });
 
 //get one shelter
-router.get("/shelter/:id", (req, res) => {
+router.get("/:id", (req, res) => {
   const { id } = req.params;
   shelterSchema
     .findById(id)
@@ -38,7 +38,7 @@ router.get("/shelter/:id", (req, res) => {
 });
 
 //update shelter
-router.put("/shelter/:id", (req, res) => {
+router.put("/:id", (req, res) => {
   const { id } = req.params;
   const {
     organization_name,
@@ -73,7 +73,7 @@ router.put("/shelter/:id", (req, res) => {
 });
 
 //delete shelter
-router.delete("/shelter/:id", (req, res) => {
+router.delete("/:id", (req, res) => {
   const { id } = req.params;
   shelterSchema
     .remove({ _id: id })

@@ -1,50 +1,113 @@
 const express = require("express");
 const router = express.Router();
-const userSchema = require("../models/user");
+const User = require("../models/user");
+const { hashPassword } = require("../utils/password");
 
 //create user
-router.post("/users", (req, res) => {
-  const user = userSchema(req.body);
-  user
-    .save()
-    .then((data) => res.json(data))
-    .catch((error) => res.json({ message: error }));
+router.post("/", async (req, res, next) => {
+  const {
+    firstName,
+    lastName,
+    username,
+    password,
+    email,
+    profileImg,
+    phone,
+    service,
+    posts,
+  } = req.body;
+  try {
+    if (!firstName || !lastName || !username || !password || !email) {
+      return res.send("No se recibieron todos los campos");
+    }
+    const userExist = await User.findOne({ email });
+    console.log(userExist);
+    if (userExist) return res.send("Usuario existente");
+    else {
+      const newUser = new User({
+        firstName,
+        lastName,
+        username,
+        email,
+        profileImg,
+        phone,
+        service,
+        posts,
+        password: await hashPassword(password),
+      });
+
+      newUser.save().then((data) => res.json(data));
+    }
+  } catch (error) {
+    next(error);
+  }
 });
 
 //get all user
-router.get("/users", (req, res) => {
-  userSchema
-    .find().populate({path:"contact", model: "Contact"})
+router.get("/", (req, res, next) => {
+  User.find()
+    .populate({ path: "service", model: "Service" })
+    .populate({ path: "posts", model: "Post" })
     .then((data) => res.json(data))
-    .catch((error) => res.json({ message: error }));
+    .catch((error) => next(error));
 });
 
 //get one user
-router.get("/users/:id", (req, res) => {
+router.get("/:id", (req, res, next) => {
   const { id } = req.params;
-  userSchema
-    .findById(id)
+  User.findById(id)
+    .populate({ path: "service", model: "Service" })
+    .populate({ path: "posts", model: "Post" })
     .then((data) => res.json(data))
-    .catch((error) => res.json({ message: error }));
+    .catch((error) => next(error));
 });
 
 //update user
-router.put("/users/:id", (req, res) => {
+router.put("/:id", async (req, res, next) => {
   const { id } = req.params;
-  const { name, age, email } = req.body;
-  userSchema
-    .updateOne({ _id: id }, { $set: { name, age, email } })
+  const {
+    firstName,
+    lastName,
+    username,
+    password,
+    email,
+    profileImg,
+    phone,
+    service,
+    posts,
+  } = req.body;
+
+  let newPassword;
+  if (password) {
+    newPassword = await hashPassword(password);
+  }
+
+  User.updateOne(
+    { _id: id },
+    {
+      $set: {
+        firstName,
+        lastName,
+        username,
+        password: newPassword,
+        email,
+        profileImg,
+        phone,
+        service,
+        posts,
+      },
+    }
+  )
     .then((data) => res.json(data))
-    .catch((error) => res.json({ message: error }));
+    .catch((error) => next(error));
 });
 
 //delete user
-router.delete("/users/:id", (req, res) => {
+router.delete("/:id", (req, res, next) => {
   const { id } = req.params;
-  userSchema
-    .remove({ _id: id })
+  User.remove({ _id: id })
     .then((data) => res.json(data))
-    .catch((error) => res.json({ message: error }));
+    .catch((error) => next(error));
 });
 
 module.exports = router;

@@ -4,12 +4,7 @@ require("dotenv").config();
 const port = process.env.PORT || 9000;
 const MONGODB_URI = process.env.MONGODB_URI;
 const mongoose = require("mongoose");
-
-const userRoutes = require("./routes/user");
-const shelterRoutes = require("./routes/shelter");
-const contactsRoutes = require("./routes/contact");
-const serviceRoutes = require("./routes/service");
-const postRoutes = require("./routes/post");
+const routes = require("./routes");
 
 app.listen(port, () => console.log("server listening on port", port));
 
@@ -26,8 +21,15 @@ app.get("/", (req, res) => {
 
 //middleware
 app.use(express.json());
-app.use("/", userRoutes);
-app.use("/", shelterRoutes);
-app.use("/", contactsRoutes);
-app.use("/", serviceRoutes);
-app.use("/", postRoutes);
+app.use((err, _req, res, _next) => {
+  const status = err.status !== undefined ? err.status : 500;
+  const message = err.message !== undefined ? err.message : err;
+  console.error(err);
+  res.status(status).json({ message });
+});
+app.use("/", routes);
+// app.use("/", userRoutes);
+// app.use("/", shelterRoutes);
+// app.use("/", contactsRoutes);
+// app.use("/", serviceRoutes);
+// app.use("/", postRoutes);
