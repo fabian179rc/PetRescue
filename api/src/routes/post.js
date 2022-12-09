@@ -1,25 +1,22 @@
 const express = require("express");
 const router = express.Router();
-const Shelter = require("../models/shelter");
-const Service = require("../models/service");
+const Album = require("../models/album");
+const Post = require("../models/post");
 const mongoose = require("mongoose");
 const toId = mongoose.Types.ObjectId;
 
-//create service
+//create post
 router.post("/", async (req, res) => {
-  const infoShelter = await Shelter.find({
-    username: req.body.shelterUsername,
+  const infoAlbum = await Album.find({
+    name: req.body.albumName,
   });
-  let shelterId = infoShelter[0]._id;
+  let albumId = infoAlbum[0]._id;
 
   try {
-    const newService = await Service.create(req.body);
-    newService.save();
+    const newPost = await Post.create(req.body);
+    newPost.save();
 
-    Shelter.updateOne(
-      { _id: shelterId },
-      { $set: { service: toId(newService) } }
-    )
+    Album.updateOne({ _id: albumId }, { $set: { posts: toId(newPost) } })
       .then((data) => res.json(data))
       .catch((error) => res.json({ message: error }));
   } catch (err) {
