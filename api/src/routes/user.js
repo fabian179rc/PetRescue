@@ -17,11 +17,10 @@ router.post("/", async (req, res, next) => {
     posts,
   } = req.body;
   try {
-    if (!firstName || !lastName || !username || !password || !email) {
+    if (!firstName || !lastName || !username || !password || !email || !phone) {
       return res.send("No se recibieron todos los campos");
     }
     const userExist = await User.findOne({ email });
-    console.log(userExist);
     if (userExist) return res.send("Usuario existente");
     else {
       const newUser = new User({
@@ -82,7 +81,7 @@ router.put("/:id", async (req, res, next) => {
     newPassword = await hashPassword(password);
   }
 
-  User.updateOne(
+  await User.updateOne(
     { _id: id },
     {
       $set: {
@@ -97,16 +96,19 @@ router.put("/:id", async (req, res, next) => {
         posts,
       },
     }
-  )
-    .then((data) => res.json(data))
-    .catch((error) => next(error));
+  ).catch((error) => next(error));
+
+  User.findById(id)
+    .populate({ path: "service", model: "Service" })
+    .populate({ path: "posts", model: "Post" })
+    .then((data) => res.json(data));
 });
 
 //delete user
 router.delete("/:id", (req, res, next) => {
   const { id } = req.params;
   User.remove({ _id: id })
-    .then((data) => res.json(data))
+    .then(() => res.send("Usuario Borrado"))
     .catch((error) => next(error));
 });
 

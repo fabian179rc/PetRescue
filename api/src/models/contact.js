@@ -1,19 +1,16 @@
 const mongoose = require("mongoose");
 
-const contactSchema = mongoose.Schema({
-  phone: {
-    type: Number,
-    required: false,
-  },
+const networksSchema = mongoose.Schema({
   instagram: {
     type: String,
-    required: false,
+  },
+  facebook: {
+    type: String,
   },
   web_page: {
     type: String,
-    required: false,
   },
 });
 
-const model = mongoose.model("Contact", contactSchema);
+const model = mongoose.model("Networks", networksSchema);
 module.exports = model;

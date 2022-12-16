@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const shelterSchema = mongoose.Schema({
@@ -14,29 +14,33 @@ const shelterSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  picture: {
+  profileImg: {
     type: String,
-    required: true,
+    required: false,
   },
   email: {
     type: String,
     required: true,
   },
-  contact: {
-    type: Schema.Types.ObjectId,
-    ref: 'Contact',
-  },
   address: {
     type: String,
-    required: false,
+    required: true,
+  },
+  phone: {
+    type: Number,
+    required: true,
+  },
+  networks: {
+    type: Schema.Types.ObjectId,
+    ref: "Networks",
   },
   album: {
     type: Schema.Types.ObjectId,
-    ref: 'Album',
+    ref: "Album",
   },
   service: {
     type: Schema.Types.ObjectId,
-    ref: 'Service',
+    ref: "Service",
   },
 });
 

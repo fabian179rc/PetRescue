@@ -11,15 +11,12 @@ const postSchema = mongoose.Schema({
   },
   description: {
     type: String,
-    required: false,
   },
   features: {
     type: [String],
-    required: false,
   },
   address: {
     type: String,
-    required: false,
   },
 });
 

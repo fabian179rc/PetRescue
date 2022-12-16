@@ -7,21 +7,36 @@ const toId = mongoose.Types.ObjectId;
 
 //create post
 router.post("/", async (req, res) => {
-  const infoAlbum = await Album.find({
-    name: req.body.albumName,
-  });
-  let albumId = infoAlbum[0]._id;
+  const { albumName, status, picture, description, features, address } =
+    req.body;
 
   try {
-    const newPost = await Post.create(req.body);
+    let albumId;
+    if (albumName) {
+      const infoAlbum = await Album.find({
+        name: albumName,
+      });
+      albumId = infoAlbum[0]._id;
+    }
+
+    const newPost = await Post.create({
+      status,
+      picture,
+      description,
+      features,
+      address,
+    });
     newPost.save();
 
-    Album.updateOne({ _id: albumId }, { $set: { posts: toId(newPost) } })
-      .then((data) => res.json(data))
-      .catch((error) => res.json({ message: error }));
-  } catch (err) {
+    if (albumId) {
+      Album.updateOne(
+        { _id: albumId },
+        { $set: { posts: toId(newPost) } }
+      ).then((data) => res.json(data));
+    }
+  } catch (error) {
     res.status(400).send("No se pudo crear");
-    console.error(err);
+    console.error(error);
   }
 });
 
