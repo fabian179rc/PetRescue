@@ -6,25 +6,38 @@ const mongoose = require("mongoose");
 const toId = mongoose.Types.ObjectId;
 
 //create service
-router.post("/", async (req, res) => {
-  const infoShelter = await Shelter.find({
-    username: req.body.shelterUsername,
-  });
-  let shelterId = infoShelter[0]._id;
+router.post("/:id", async (req, res, next) => {
+  const { id } = req.params;
+  const { name, description, address, cost } = req.body;
 
   try {
-    const newService = await Service.create(req.body);
-    newService.save();
+    const infoShelter = await Shelter.findById(id).catch((error) =>
+      next(error)
+    );
 
-    Shelter.updateOne(
-      { _id: shelterId },
-      { $set: { service: toId(newService) } }
-    )
+    if (!infoShelter) return res.send("Refugio no encontrado");
+
+    if (!name || !description || !address || !cost)
+      return res.send("No se ingresaron todos los campos");
+    const newService = await new Service({
+      name,
+      description,
+      address,
+      cost,
+    });
+    newService.save().catch((error) => next(error));
+    await Shelter.updateOne(
+      { _id: id },
+      { $addToSet: { services: { service: newService } } }
+    ).catch((error) => next(error));
+    Shelter.findById(id)
+      .populate({ path: "networks", model: "Networks" })
+      .populate({ path: "album", model: "Album" })
+      .populate("services.service")
       .then((data) => res.json(data))
-      .catch((error) => res.json({ message: error }));
-  } catch (err) {
-    res.status(400).send("No se pudo crear");
-    console.error(err);
+      .catch((error) => next(error));
+  } catch (error) {
+    next(error);
   }
 });
 

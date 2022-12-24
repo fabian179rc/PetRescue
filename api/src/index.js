@@ -28,8 +28,3 @@ app.use((err, _req, res, _next) => {
   res.status(status).json({ message });
 });
 app.use("/", routes);
-// app.use("/", userRoutes);
-// app.use("/", shelterRoutes);
-// app.use("/", contactsRoutes);
-// app.use("/", serviceRoutes);
-// app.use("/", postRoutes);

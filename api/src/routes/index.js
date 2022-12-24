@@ -2,13 +2,13 @@ const { Router } = require("express");
 const router = Router();
 const user = require("./user");
 const shelter = require("./shelter");
-const contacts = require("./contact");
+const network = require("./networks");
 const service = require("./service");
 const post = require("./post");
 
 router.use("/user", user);
 router.use("/shelter", shelter);
-router.use("/contacts", contacts);
+router.use("/network", network);
 router.use("/service", service);
 router.use("/post", post);
 

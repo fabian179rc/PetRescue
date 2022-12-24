@@ -38,9 +38,15 @@ const shelterSchema = mongoose.Schema({
     type: Schema.Types.ObjectId,
     ref: "Album",
   },
-  service: {
-    type: Schema.Types.ObjectId,
-    ref: "Service",
+  services: {
+    type: [
+      {
+        service: {
+          type: Schema.Types.ObjectId,
+          ref: "Services",
+        },
+      },
+    ],
   },
 });
 

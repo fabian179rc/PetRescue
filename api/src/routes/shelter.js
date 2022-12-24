@@ -61,7 +61,7 @@ router.get("/", (req, res, next) => {
     Shelter.find()
       .populate({ path: "networks", model: "Networks" })
       .populate({ path: "album", model: "Album" })
-      .populate({ path: "service", model: "Service" })
+      .populate({ path: "services", model: "Service" })
       .then((data) => res.json(data))
       .catch((error) => next(error));
   } catch (error) {
@@ -75,7 +75,7 @@ router.get("/:id", (req, res, next) => {
   Shelter.findById(id)
     .populate({ path: "networks", model: "Networks" })
     .populate({ path: "album", model: "Album" })
-    .populate({ path: "service", model: "Service" })
+    .populate({ path: "services", model: "Service" })
     .then((data) => res.json(data))
     .catch((error) => next(error));
 });
@@ -122,7 +122,7 @@ router.put("/:id", async (req, res, next) => {
   Shelter.findById(id)
     .populate({ path: "networks", model: "Networks" })
     .populate({ path: "album", model: "Album" })
-    .populate({ path: "service", model: "Service" })
+    .populate({ path: "services", model: "Service" })
     .then((data) => res.json(data))
     .catch((error) => next(error));
 });

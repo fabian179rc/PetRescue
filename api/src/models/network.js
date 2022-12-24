@@ -7,7 +7,7 @@ const networksSchema = mongoose.Schema({
   facebook: {
     type: String,
   },
-  web_page: {
+  webPage: {
     type: String,
   },
 });
