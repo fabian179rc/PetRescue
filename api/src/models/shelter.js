@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const shelterSchema = mongoose.Schema({
-  organization_name: {
+  organizationName: {
     type: String,
     required: true,
   },
@@ -34,9 +34,15 @@ const shelterSchema = mongoose.Schema({
     type: Schema.Types.ObjectId,
     ref: "Networks",
   },
-  album: {
-    type: Schema.Types.ObjectId,
-    ref: "Album",
+  posts: {
+    type: [
+      {
+        post: {
+          type: Schema.Types.ObjectId,
+          ref: "Posts",
+        },
+      },
+    ],
   },
   services: {
     type: [

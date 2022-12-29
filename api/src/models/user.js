@@ -34,8 +34,14 @@ const userSchema = mongoose.Schema({
     ref: "Service",
   },
   posts: {
-    type: Schema.Types.ObjectId,
-    ref: "Post",
+    type: [
+      {
+        post: {
+          type: Schema.Types.ObjectId,
+          ref: "Posts",
+        },
+      },
+    ],
   },
 });
 

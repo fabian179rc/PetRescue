@@ -11,28 +11,31 @@ router.post("/:id", async (req, res, next) => {
   const { name, description, address, cost } = req.body;
 
   try {
+    if (!name || !description || !address || !cost)
+      return res.send("No se ingresaron todos los campos");
+
     const infoShelter = await Shelter.findById(id).catch((error) =>
       next(error)
     );
-
     if (!infoShelter) return res.send("Refugio no encontrado");
 
-    if (!name || !description || !address || !cost)
-      return res.send("No se ingresaron todos los campos");
     const newService = await new Service({
       name,
       description,
       address,
       cost,
     });
-    newService.save().catch((error) => next(error));
+
+    newService.save();
+
     await Shelter.updateOne(
       { _id: id },
       { $addToSet: { services: { service: newService } } }
     ).catch((error) => next(error));
+
     Shelter.findById(id)
-      .populate({ path: "networks", model: "Networks" })
-      .populate({ path: "album", model: "Album" })
+      .populate("networks")
+      .populate("album")
       .populate("services.service")
       .then((data) => res.json(data))
       .catch((error) => next(error));

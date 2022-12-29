@@ -1,12 +1,15 @@
 const express = require("express");
 const router = express.Router();
-const { hashPassword } = require("../utils/password");
+const { hashPassword, comparePassword } = require("../utils/password");
 const Shelter = require("../models/shelter");
+const Network = require("../models/network");
+const mongoose = require("mongoose");
+const toId = mongoose.Types.ObjectId;
 
 //create shelter
 router.post("/", async (req, res, next) => {
   const {
-    organization_name,
+    organizationName,
     username,
     password,
     email,
@@ -14,12 +17,10 @@ router.post("/", async (req, res, next) => {
     address,
     phone,
     networks,
-    album,
-    service,
   } = req.body;
   try {
     if (
-      !organization_name ||
+      !organizationName ||
       !username ||
       !password ||
       !email ||
@@ -32,22 +33,33 @@ router.post("/", async (req, res, next) => {
     if (ShelterExist) return res.send("Organizacion existente");
     else {
       const newShelter = new Shelter({
-        organization_name,
+        organizationName,
         username,
         email,
         profileImg,
         address,
         phone,
-        networks,
-        album,
-        service,
         password: await hashPassword(password),
       });
 
-      newShelter //al tirar un error mata al back pero crea igual(user igual?)
-        .save()
+      await newShelter.save(); //al tirar un error mata al back pero crea igual(user igual?)
+
+      const newNetwork = await new Network({
+        instagram: networks.instagram,
+        facebook: networks.facebook,
+        webPage: networks.webPage,
+      });
+      await newNetwork.save();
+
+      await Shelter.updateOne(
+        { email: email },
+        { $set: { networks: toId(newNetwork) } }
+      );
+
+      await Shelter.findOne({ email: email })
+        .select("-password")
+        .populate("networks")
         .then((data) => res.json(data))
-        // .populate({ path: "service", model: "Service" })
         .catch((error) => next(error));
     }
   } catch (error) {
@@ -59,9 +71,10 @@ router.post("/", async (req, res, next) => {
 router.get("/", (req, res, next) => {
   try {
     Shelter.find()
-      .populate({ path: "networks", model: "Networks" })
-      .populate({ path: "album", model: "Album" })
-      .populate({ path: "services", model: "Service" })
+      .select("-password")
+      .populate("networks")
+      .populate("posts.post")
+      .populate("services.service")
       .then((data) => res.json(data))
       .catch((error) => next(error));
   } catch (error) {
@@ -73,9 +86,10 @@ router.get("/", (req, res, next) => {
 router.get("/:id", (req, res, next) => {
   const { id } = req.params;
   Shelter.findById(id)
-    .populate({ path: "networks", model: "Networks" })
-    .populate({ path: "album", model: "Album" })
-    .populate({ path: "services", model: "Service" })
+    .select("-password")
+    .populate("networks")
+    .populate("posts.post")
+    .populate("services.service")
     .then((data) => res.json(data))
     .catch((error) => next(error));
 });
@@ -84,45 +98,61 @@ router.get("/:id", (req, res, next) => {
 router.put("/:id", async (req, res, next) => {
   const { id } = req.params;
   const {
-    organization_name,
+    organizationName,
     username,
+    oldEmail,
     email,
     profileImg,
     address,
     phone,
-    networks,
-    album,
-    service,
     password,
+    oldPassword,
   } = req.body;
 
-  let newPassword;
-  if (password) {
+  const shelterInfo = await Shelter.findById(id);
+  if (!shelterInfo) return res.send("Id incorrecto");
+
+  let newPassword, newEmail;
+
+  if (oldPassword) {
+    const resultPasswordMatch = await comparePassword(
+      oldPassword,
+      shelterInfo.password
+    );
+
+    if (!resultPasswordMatch)
+      return res.send("Error, Las contraseñas no coinciden");
     newPassword = await hashPassword(password);
+  }
+
+  if (oldEmail) {
+    console.log(oldEmail, shelterInfo.email);
+    if (oldEmail !== shelterInfo.email)
+      return res.send("El email ingresado es incorrecto");
+    console.log("asd");
+    newEmail = email;
   }
 
   await Shelter.updateOne(
     { _id: id },
     {
       $set: {
-        organization_name,
+        organizationName,
         username,
-        email,
         profileImg,
         address,
         phone,
-        networks,
-        album,
-        service,
+        email: newEmail,
         password: newPassword,
       },
     }
   ).catch((error) => next(error));
 
   Shelter.findById(id)
-    .populate({ path: "networks", model: "Networks" })
-    .populate({ path: "album", model: "Album" })
-    .populate({ path: "services", model: "Service" })
+    .populate("networks")
+    .select("-password")
+    .populate("posts.post")
+    .populate("services.service")
     .then((data) => res.json(data))
     .catch((error) => next(error));
 });
@@ -130,7 +160,7 @@ router.put("/:id", async (req, res, next) => {
 //delete shelter
 router.delete("/:id", (req, res, next) => {
   const { id } = req.params;
-  Shelter.remove({ _id: id })
+  Shelter.deleteOne({ _id: id })
     .then(() => res.send("Organizacion Borrada"))
     .catch((error) => next(error));
 });
