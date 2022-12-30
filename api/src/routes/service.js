@@ -35,7 +35,7 @@ router.post("/:id", async (req, res, next) => {
 
     Shelter.findById(id)
       .populate("networks")
-      .populate("album")
+      .populate("posts.post")
       .populate("services.service")
       .then((data) => res.json(data))
       .catch((error) => next(error));

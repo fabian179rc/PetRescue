@@ -43,6 +43,7 @@ const shelterSchema = mongoose.Schema({
         },
       },
     ],
+    default: [],
   },
   services: {
     type: [
@@ -53,6 +54,7 @@ const shelterSchema = mongoose.Schema({
         },
       },
     ],
+    default: [],
   },
 });
 

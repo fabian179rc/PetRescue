@@ -55,7 +55,7 @@ router.post("/", async (req, res, next) => {
         { $set: { networks: toId(newNetwork) } }
       );
 
-      await Shelter.findOne({ email: email })
+      await Shelter.findOne(email)
         .select("-password")
         .populate("networks")
         .then((data) => res.json(data))
