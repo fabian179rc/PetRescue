@@ -42,15 +42,14 @@ router.post("/", async (req, res, next) => {
         password: await hashPassword(password),
       });
 
-      await newShelter.save(); //al tirar un error mata al back pero crea igual(user igual?)
-
       const newNetwork = await new Network({
-        instagram: networks.instagram,
-        facebook: networks.facebook,
-        webPage: networks.webPage,
+        instagram: networks ? networks.instagram : "",
+        facebook: networks ? networks.facebook : "",
+        webPage: networks ? networks.webPage : "",
       });
-      await newNetwork.save();
 
+      await newNetwork.save();
+      await newShelter.save();
       await Shelter.updateOne(
         { email: email },
         { $set: { networks: toId(newNetwork) } }
@@ -126,10 +125,8 @@ router.put("/:id", async (req, res, next) => {
   }
 
   if (oldEmail) {
-    console.log(oldEmail, shelterInfo.email);
     if (oldEmail !== shelterInfo.email)
       return res.send("El email ingresado es incorrecto");
-    console.log("asd");
     newEmail = email;
   }
 
