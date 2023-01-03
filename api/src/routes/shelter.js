@@ -157,7 +157,7 @@ router.put("/:id", async (req, res, next) => {
 //delete shelter
 router.delete("/:id", (req, res, next) => {
   const { id } = req.params;
-  Shelter.deleteOne({ _id: id })
+  Shelter.deleteOne(id)
     .then(() => res.send("Organizacion Borrada"))
     .catch((error) => next(error));
 });

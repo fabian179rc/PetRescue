@@ -3,8 +3,6 @@ const router = express.Router();
 const Shelter = require("../models/shelter");
 const User = require("../models/user");
 const Post = require("../models/post");
-// const mongoose = require("mongoose");
-// const toId = mongoose.Types.ObjectId;
 
 //create post
 router.post("/:id", async (req, res, next) => {
@@ -54,13 +52,6 @@ router.post("/:id", async (req, res, next) => {
         .then((data) => res.json(data))
         .catch((error) => next(error));
     }
-
-    // if (albumId) {
-    //   Album.updateOne(
-    //     { _id: albumId },
-    //     { $set: { posts: toId(newPost) } }
-    //   ).then((data) => res.json(data));
-    // }
   } catch (error) {
     res.status(400).send("No se pudo crear");
     console.error(error);
@@ -78,28 +69,6 @@ router.get("/", (req, res, next) => {
   }
 });
 
-//Get All Posts User/Shelter (ID User or Shelter)
-// router.get("/:id", (req, res, next) => {
-//   const { id } = req.params;
-//   const { firstName } = req.body;
-
-//   try {
-//     if (firstName) {
-//       User.findById(id)
-//         .populate("posts.post")
-//         .then((data) => res.json(data.posts))
-//         .catch((error) => next(error));
-//     } else {
-//       Shelter.findById(id)
-//         .populate("posts.post")
-//         .then((data) => res.json(data.posts))
-//         .catch((error) => next(error));
-//     }
-//   } catch (error) {
-//     next(error);
-//   }
-// });
-
 //get Post(ID Post)
 router.get("/:id", (req, res, next) => {
   const { id } = req.params;
@@ -113,6 +82,7 @@ router.get("/:id", (req, res, next) => {
   }
 });
 
+//update post
 router.put("/:id", async (req, res, next) => {
   const { id } = req.params;
   const { status, picture, description, features, address } = req.body;
@@ -126,11 +96,11 @@ router.put("/:id", async (req, res, next) => {
       { _id: id },
       {
         $set: {
-          status: postClean ? "" : status,
-          picture: postClean ? "" : picture,
-          description: postClean ? "" : description,
-          address: postClean ? "" : address,
-          features: postClean ? [] : features,
+          status,
+          picture,
+          description,
+          address,
+          features,
         },
       }
     ).catch((error) => next(error));
@@ -143,4 +113,13 @@ router.put("/:id", async (req, res, next) => {
   }
 });
 
+//delete post
+router.delete("/:id", async (req, res, next) => {
+  //queda en null
+  const { id } = req.params;
+  const { idPost } = req.body;
+  await Post.deleteOne({ posts: { _id: idPost } })
+    .then(() => res.send("Post Borrado"))
+    .catch((error) => next(error));
+});
 module.exports = router;

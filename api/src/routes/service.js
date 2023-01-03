@@ -2,8 +2,6 @@ const express = require("express");
 const router = express.Router();
 const Shelter = require("../models/shelter");
 const Service = require("../models/service");
-const mongoose = require("mongoose");
-const toId = mongoose.Types.ObjectId;
 
 //create service
 router.post("/:id", async (req, res, next) => {
