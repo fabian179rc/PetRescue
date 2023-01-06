@@ -27,30 +27,30 @@ router.post("/:id", async (req, res, next) => {
       //is user
       await User.updateOne(
         { _id: id },
-        { $addToSet: { posts: { post: newPost } } }
+        { $addToSet: { postId: newPost } }
       ).catch((error) => next(error));
 
       User.findById(id)
         .select("-password")
         .populate("networks")
-        .populate("posts.post")
-        .populate("services.service")
+        // .populate("posts")
+        // .populate("services.service")
         .then((data) => res.json(data))
         .catch((error) => next(error));
     } else {
       //is shelter
       await Shelter.updateOne(
         { _id: id },
-        { $addToSet: { posts: { post: newPost } } }
+        { $addToSet: { postId: newPost } }
       ).catch((error) => next(error));
 
-      Shelter.findById(id)
-        .select("-password")
-        .populate("networks")
-        .populate("posts.post")
-        .populate("services.service")
-        .then((data) => res.json(data))
-        .catch((error) => next(error));
+      // Shelter.findById(id)
+      //   .select("-password")
+      //   .populate("networks")
+      //   .populate("postId")
+      //   .populate("services.service")
+      //   .then((data) => res.json(data))
+      //   .catch((error) => next(error));
     }
   } catch (error) {
     res.status(400).send("No se pudo crear");
@@ -117,8 +117,8 @@ router.put("/:id", async (req, res, next) => {
 router.delete("/:id", async (req, res, next) => {
   //queda en null
   const { id } = req.params;
-  const { idPost } = req.body;
-  await Post.deleteOne({ posts: { _id: idPost } })
+  // const { idPost } = req.body;
+  await Post.remove({ _id: id })
     .then(() => res.send("Post Borrado"))
     .catch((error) => next(error));
 });
