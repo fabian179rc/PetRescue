@@ -29,7 +29,7 @@ router.post("/", async (req, res, next) => {
     ) {
       return res.send("No se recibieron todos los campos");
     }
-    const ShelterExist = await Shelter.findOne({ email: email });
+    const ShelterExist = await Shelter.findOne({ email });
     if (ShelterExist) return res.send("Organizacion existente");
     else {
       const newShelter = new Shelter({
@@ -55,7 +55,7 @@ router.post("/", async (req, res, next) => {
         { $set: { networks: toId(newNetwork) } }
       );
 
-      await Shelter.findOne({ email })
+      await Shelter.findOne(email)
         .select("-password")
         .populate("networks")
         .then((data) => res.json(data))
@@ -72,7 +72,7 @@ router.get("/", (req, res, next) => {
     Shelter.find()
       .select("-password")
       .populate("networks")
-      // .populate("postId")
+      .populate("posts.post")
       .populate("services.service")
       .then((data) => res.json(data))
       .catch((error) => next(error));
@@ -85,10 +85,10 @@ router.get("/", (req, res, next) => {
 router.get("/:id", (req, res, next) => {
   const { id } = req.params;
   Shelter.findById(id)
-    // .select("-password")
-    // .populate("networks")
-    .populate("posts")
-    // .populate("services.service")
+    .select("-password")
+    .populate("networks")
+    .populate("posts.post")
+    .populate("services.service")
     .then((data) => res.json(data))
     .catch((error) => next(error));
 });
@@ -148,7 +148,7 @@ router.put("/:id", async (req, res, next) => {
   Shelter.findById(id)
     .populate("networks")
     .select("-password")
-    .populate("postId")
+    .populate("posts.post")
     .populate("services.service")
     .then((data) => res.json(data))
     .catch((error) => next(error));
