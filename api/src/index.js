@@ -9,6 +9,8 @@ const routes = require("./routes");
 app.listen(port, () => console.log("server listening on port", port));
 
 //mongoose connection
+mongoose.set("strictQuery", false);
+
 mongoose
   .connect(MONGODB_URI)
   .then(() => console.log("connected to MongoDB Atlas"))

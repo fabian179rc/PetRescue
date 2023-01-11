@@ -23,35 +23,20 @@ router.post("/:id", async (req, res, next) => {
     });
     newPost.save();
 
-    if (firstName) {
-      //is user
-      await User.updateOne(
-        { _id: id },
-        { $addToSet: { posts: { post: newPost } } }
-      ).catch((error) => next(error));
+    let model = firstName ? User : Shelter;
 
-      User.findById(id)
-        .select("-password")
-        .populate("networks")
-        .populate("posts.post")
-        .populate("services.service")
-        .then((data) => res.json(data))
-        .catch((error) => next(error));
-    } else {
-      //is shelter
-      await Shelter.updateOne(
-        { _id: id },
-        { $addToSet: { posts: { post: newPost } } }
-      ).catch((error) => next(error));
+    await model
+      .updateOne({ _id: id }, { $addToSet: { posts: { post: newPost } } })
+      .catch((error) => next(error));
 
-      Shelter.findById(id)
-        .select("-password")
-        .populate("networks")
-        .populate("posts.post")
-        .populate("services.service")
-        .then((data) => res.json(data))
-        .catch((error) => next(error));
-    }
+    model
+      .findById(id)
+      .select("-password")
+      .populate("networks") //ver con user
+      .populate("posts.post")
+      .populate("services.service")
+      .then((data) => res.json(data))
+      .catch((error) => next(error));
   } catch (error) {
     res.status(400).send("No se pudo crear");
     console.error(error);
@@ -86,10 +71,6 @@ router.get("/:id", (req, res, next) => {
 router.put("/:id", async (req, res, next) => {
   const { id } = req.params;
   const { status, picture, description, features, address } = req.body;
-  let postClean = false;
-  if (!status && !picture && !description && !features && !address) {
-    postClean = true;
-  }
 
   try {
     await Post.updateOne(
@@ -115,11 +96,14 @@ router.put("/:id", async (req, res, next) => {
 
 //delete post
 router.delete("/:id", async (req, res, next) => {
-  //queda en null
   const { id } = req.params;
-  const { idPost } = req.body;
-  await Post.deleteOne({ posts: { _id: idPost } })
-    .then(() => res.send("Post Borrado"))
+  const { firstName } = req.body;
+  let model = firstName ? User : Shelter;
+
+  await model
+    .updateOne({ "posts.post": id }, { $pull: { posts: { post: id } } })
+    .then(() => res.send("Post eliminado"))
     .catch((error) => next(error));
 });
+
 module.exports = router;

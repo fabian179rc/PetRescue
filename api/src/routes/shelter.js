@@ -55,9 +55,11 @@ router.post("/", async (req, res, next) => {
         { $set: { networks: toId(newNetwork) } }
       );
 
-      await Shelter.findOne(email)
+      await Shelter.findOne({ email })
         .select("-password")
         .populate("networks")
+        .populate("posts.post")
+        .populate("services.service")
         .then((data) => res.json(data))
         .catch((error) => next(error));
     }
@@ -146,8 +148,8 @@ router.put("/:id", async (req, res, next) => {
   ).catch((error) => next(error));
 
   Shelter.findById(id)
-    .populate("networks")
     .select("-password")
+    .populate("networks")
     .populate("posts.post")
     .populate("services.service")
     .then((data) => res.json(data))
@@ -157,7 +159,7 @@ router.put("/:id", async (req, res, next) => {
 //delete shelter
 router.delete("/:id", (req, res, next) => {
   const { id } = req.params;
-  Shelter.deleteOne(id)
+  Shelter.deleteOne({ _id: id })
     .then(() => res.send("Organizacion Borrada"))
     .catch((error) => next(error));
 });
